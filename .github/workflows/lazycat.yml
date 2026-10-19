@@ -195,6 +195,9 @@ jobs:
           mkdir -p "$HOME/.config/lazycat"
           printf '{"token":"%s"}' "${LZC_API_TOKEN}" > "$HOME/.config/lazycat/box-config.json"
           # 更新日志走本地化文件，避免 publish 交互式询问
+          # --clangs 是数组，每个语言一个 --clangs，逗号写法会被当成单个路径
           lzc-cli appstore publish "${LPK_PATH}" \
-            --clangs "zh:$(pwd)/.github/changelog.zh.md,en:$(pwd)/.github/changelog.en.md"
+            --clangs "zh:$(pwd)/.github/changelog.zh.md" \
+            --clangs "en:$(pwd)/.github/changelog.en.md"
           echo "已提交商店审核，等待审核结果"
+
