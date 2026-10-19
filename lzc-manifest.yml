@@ -22,7 +22,7 @@ services:
   qwenpaw:
     # 上游 --init 用于正确回收子进程，懒猫侧同样需要，否则重启时会留僵尸进程
     init: true
-    image: registry.lazycat.cloud/wans/agentscope/qwenpaw:df0f729634314996
+    image: registry.lazycat.cloud/wans/agentscope/qwenpaw:9543e5ebc29da193
     binds:
       - /lzcapp/var/working:/app/working
       - /lzcapp/var/working.secret:/app/working.secret

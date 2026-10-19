@@ -1,8 +1,8 @@
 {
-  "version": "2.2.1",
-  "digest": "",
-  "lpk_version": "2.2.1",
+  "version": "2.2.2",
+  "digest": "sha256:ba70a1e6511cca8afa5728d145826b522f835c3405beb9be9e8baa8bad5b1b9b",
+  "lpk_version": "2.2.2",
   "revision": 1,
-  "image": "registry.lazycat.cloud/wans/agentscope/qwenpaw:df0f729634314996",
-  "updated_at": "2026-09-14T16:11:44.016Z"
+  "image": "registry.lazycat.cloud/wans/agentscope/qwenpaw:9543e5ebc29da193",
+  "updated_at": "2026-10-19T07:35:36.667Z"
 }
