@@ -7,16 +7,28 @@
 
 ## 这个仓库做什么
 
-上游 `agentscope-ai/QwenPaw` 官方发布多架构镜像 `agentscope/qwenpaw:<版本>`，因此这里
+上游 `agentscope-ai/QwenPaw` 在发版时把多架构镜像推到 Docker Hub 与阿里云 ACR，因此这里
 **不构建任何镜像**，只做四件事：
 
-1. `pkgscript/upstream.mjs` — 查 Docker Hub 的 tag 列表，取最大稳定版 semver（顺带拿 digest，
-   用来识别「同版本号但镜像被重建」的情况）；Docker Hub 挂了就退回 GitHub Releases。
+1. `pkgscript/upstream.mjs` — 从 GitHub Releases 取最新稳定版号，再去 Docker Hub registry
+   逐个探活镜像 tag（`vX.Y.Z` → `X.Y.Z` → `latest`），顺带拿 `Docker-Content-Digest`
+   用于识别「同版本号但镜像被重建」的情况。
 2. `lzc-cli appstore copy-image` — 服务端把镜像搬进懒猫官方源（商店只接受中转镜像）。
    搬运是懒猫服务端拉取，所以 GitHub runner 不需要能访问 Docker Hub，也不需要 docker。
 3. `pkgscript/apply-release.mjs` — 改写 `lzc-manifest.yml` 的 image 行、`package.yml` 的版本号，
    写 `upstream.json` 与更新日志。
 4. `lzc-cli project release` 出包 → 发 GitHub Release → `lzc-cli appstore publish` 提审。
+
+## 上游镜像（踩过的坑，别改回去）
+
+| 事实 | 说明 |
+| --- | --- |
+| Docker Hub tag 带 `v` 前缀 | 是 `agentscope/qwenpaw:v2.2.2`，**不是** `:2.2.2`；写错会得到 `MANIFEST_UNKNOWN` |
+| Docker Hub tag 列表接口不可靠 | `hub.docker.com/.../tags` 里查不到 `v2.2.2`，但 registry 上确实存在，所以只能走 registry 探活 |
+| 阿里云 ACR 需要鉴权 | `agentscope-registry.ap-southeast-1.cr.aliyuncs.com/...` 匿名访问返回 401，copy-image 用不了 |
+| `latest` / `pre` 也在 | 版本化 tag 缺失时脚本退回 `latest`，并在日志里写明 |
+| `.postN` 版本要转换 | 上游 `2.0.0.post1` 这类版本，出包时映射成 semver 的 `2.0.0-post.1` |
+
 
 ## 数据目录（升级不能变）
 
@@ -58,6 +70,19 @@ gh workflow run lazycat.yml -f upstream_version=2.2.2 -f force=true
 mkdir -p dist && lzc-cli project release && lzc-cli lpk info dist/*.lpk
 lzc-cli project lint
 ```
+
+## 提审失败怎么办
+
+`lazycat.yml` 最后一步是提审，它失败时前面的 Release 已经产出，不用重新出包：
+
+```bash
+gh workflow run publish.yml -f lpk_version=2.2.2
+```
+
+`publish.yml` 会从 Release `v2.2.2` 下载 lpk、按 `SHA256SUMS.txt` 校验，再用当前分支的
+`.github/changelog.zh.md` / `changelog.en.md` 提审——所以改更新日志后重跑一次即可，不需要动版本号。
+
+如果商店打回要求改包内容，那才需要 `force=true` 出 `2.2.2-2`。
 
 ## 版本号规则
 
