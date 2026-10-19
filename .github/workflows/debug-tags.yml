@@ -1,0 +1,40 @@
+name: debug-tags
+
+# 一次性排查用：确认上游 agentscope/qwenpaw 在 Docker Hub 上到底有哪些 tag。
+# 结论记进 README 后这个文件就可以删掉。
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tags:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 列出 Docker Hub tag
+        env:
+          UPSTREAM_IMAGE_REPO: ${{ vars.UPSTREAM_IMAGE_REPO || 'agentscope/qwenpaw' }}
+        run: |
+          set -euo pipefail
+          node - <<'JS'
+          const repo = process.env.UPSTREAM_IMAGE_REPO;
+          async function main() {
+            let url = `https://hub.docker.com/v2/repositories/${repo}/tags?page_size=100&ordering=last_updated`;
+            const rows = [];
+            for (let page = 0; url && page < 5; page += 1) {
+              const res = await fetch(url, { headers: { accept: 'application/json' } });
+              console.log(`HTTP ${res.status} ${url}`);
+              if (!res.ok) { console.log(await res.text()); return; }
+              const json = await res.json();
+              for (const t of json.results ?? []) {
+                rows.push(`${t.name}\t${t.digest ?? ''}\t${t.last_updated ?? ''}\t${(t.images ?? []).map((i) => i.architecture).join(',')}`);
+              }
+              url = json.next ?? null;
+            }
+            console.log(`count=${rows.length}`);
+            for (const r of rows) console.log(r);
+          }
+          main().catch((e) => { console.error(e); process.exit(1); });
+          JS
