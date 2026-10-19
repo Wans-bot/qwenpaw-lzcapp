@@ -1,0 +1,68 @@
+name: publish
+
+# 只做「把已有的 Release 产物提交商店审核」这一件事。
+# 用途：
+#   - lazycat.yml 里提审那步失败了（token 过期、审核系统抽风），不必重新出包；
+#   - 商店打回要求改更新日志后再提一次；
+#   - 补发历史版本。
+on:
+  workflow_dispatch:
+    inputs:
+      lpk_version:
+        description: '要提审的版本号（对应 Release tag v<版本号>，例如 2.2.2）'
+        required: true
+      changelog_ref:
+        description: '从哪个 ref 取 changelog.zh.md / changelog.en.md'
+        required: false
+        default: main
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      LZC_CLI_VERSION: '2.0.9'
+      LPK_VERSION: ${{ inputs.lpk_version }}
+      CHANGELOG_REF: ${{ inputs.changelog_ref }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.changelog_ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: 取回 Release 里的 lpk
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          gh release download "v${LPK_VERSION}" --pattern '*.lpk' --pattern 'SHA256SUMS.txt' --dir dist
+          cd dist && sha256sum -c SHA256SUMS.txt
+
+      - name: 安装 lzc-cli 并写入凭据
+        env:
+          LZC_API_TOKEN: ${{ secrets.LZC_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          [ -n "${LZC_API_TOKEN}" ] || { echo "缺少 secrets.LZC_API_TOKEN" >&2; exit 1; }
+          npm install -g "@lazycatcloud/lzc-cli@${LZC_CLI_VERSION}" >/dev/null
+          mkdir -p "$HOME/.config/lazycat"
+          printf '{"token":"%s"}' "${LZC_API_TOKEN}" > "$HOME/.config/lazycat/box-config.json"
+          chmod 600 "$HOME/.config/lazycat/box-config.json"
+
+      - name: 提交商店审核
+        run: |
+          set -euo pipefail
+          LPK=$(find dist -maxdepth 1 -name '*.lpk' | head -1)
+          lzc-cli lpk info "${LPK}"
+          # --clangs 是数组：每个语言一项
+          lzc-cli appstore publish "${LPK}" \
+            --clangs "zh:$(pwd)/.github/changelog.zh.md" \
+            --clangs "en:$(pwd)/.github/changelog.en.md"
+          echo "已提交 ${LPK_VERSION} 的商店审核"
