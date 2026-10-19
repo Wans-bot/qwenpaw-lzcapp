@@ -1,7 +1,11 @@
 package: cloud.lazycat.app.qwenpaw
 version: 2.2.2
 name: QwenPaw
-description: 懂你所需，伴你左右。你的个人 AI 助理 — 通过 Skills 与插件扩展能力，全频道连接。
+description: |-
+  懂你所需，伴你左右。QwenPaw 是 AgentScope 开源的私人 AI 助理，整套服务跑在你自己
+  的设备上：多模型可选、多 Agent 协作、Skills 与插件按需扩展，会话与记忆全部留在本地。
+  内置定时任务、文件工作区、联网检索、文档处理与多频道接入（钉钉 / 飞书 / Telegram /
+  Discord 等），适合把每天重复的活儿交给它自动跑完再推给你。
 author: AgentScope AI (Alibaba)
 license: Apache-2.0
 homepage: https://github.com/agentscope-ai/QwenPaw
@@ -16,59 +20,87 @@ is_app: true
 locales:
   zh-CN:
     name: QwenPaw
-    description: 懂你所需，伴你左右。你的个人 AI 助理，通过 Skills 与插件扩展能力，全频道连接。
+    description: |-
+      懂你所需，伴你左右。QwenPaw 是 AgentScope 开源的私人 AI 助理，整套服务跑在你自己的设备上：
+      模型随便接（通义千问、OpenAI、Gemini、DeepSeek，或局域网里的 Ollama / vLLM），
+      可以多个 Agent 分工干活，能力靠 Skills 与插件按需打开。
+
+      它不只是一个聊天框：
+
+      - 定时任务——每天早上自动整理资讯、生成报表，再推到你指定的渠道；
+      - 文件工作区——读写、总结、转换 PDF / Word / Excel / PPT；
+      - 联网与检索——搜网页、跟进订阅、长视频摘要、查个人知识库；
+      - 多频道推送——钉钉、飞书、Telegram、Discord 同时或按频道发；
+      - 自定义工作流——把插件和定时任务拼成你自己的流水线。
+
+      所有会话、记忆、技能和配置都存在设备本地目录，不上传云端，重启和升级都不丢。
     usage: |
-      打开应用就是 QwenPaw 的对话界面，第一次使用按下面三步走：
+      第一次打开会进入 QwenPaw 控制台，按下面几步就能用起来：
 
-      1. 配置模型：进入「设置 → 模型」，填入任意一家兼容 OpenAI 协议的 API Key
-         （通义千问 DashScope、OpenAI、Gemini、DeepSeek 都能用；也可以指向本机
-         Ollama / LM Studio 的地址）。
-      2. 选一个 Agent 开始聊天：左侧列表里可以直接对话，支持多 Agent 协作与
-         长任务拆解。
-      3. 需要更强的能力就到「技能 / 插件」里开启：联网搜索、文档读写、日程提醒、
-         渠道接入（钉钉、飞书、微信、Discord、Telegram 等）都在这里配置。
+      1. 接模型：进「设置 → 模型」，填一个 OpenAI 兼容的接口地址与 API Key。通义千问
+         DashScope、OpenAI、Gemini、DeepSeek 都行，也可以指向局域网里的 Ollama /
+         LM Studio / vLLM。填完先「测试连接」，通了再保存。
+      2. 建 Agent 开始聊：左侧新建一个 Agent，选模型和角色（内置写作、代码、数据分析等
+         预设，也可以自己写系统提示词），然后在对话框里直接交代任务。
+      3. 按需开技能：到「技能 / 插件」里打开需要的——联网搜索、文件读写、文档转换、
+         日程提醒、浏览器操作等，不用一次全开，用到哪个开哪个。
+      4. 让它自己干活：在「定时任务」里加一条，比如每天 8:00 汇总科技新闻发到飞书，
+         到点自动执行并把结果推给你。
+      5. 多频道接入：「渠道」里绑定钉钉 / 飞书 / Telegram / Discord 机器人，就能在
+         聊天软件里直接找它。
 
-      数据持久化：
+      数据与升级：
 
-      会话、记忆、技能与配置都存在设备本地存储里，重启和升级都不会丢。卸载应用
-      不会删除数据，重新安装后会继续沿用原有数据；要彻底清除请在设备上手动删除
-      该应用的数据目录。
-
-      说明：
-
-      - 本包是上游官方发行版容器镜像的移植，界面与功能均为官方原样。
-      - 模型调用走你填写的第三方 API，产生的费用与数据流向由对应服务商决定。
-      - 首次启动需要拉取镜像并初始化工作目录，大约需要一到两分钟。
+      - 会话、记忆、技能、模型配置都保存在设备本地目录，重启和升级都不会丢。
+      - 卸载应用不会删除数据，重新安装后继续沿用原有数据；要彻底清除请在设备上手动
+        删除该应用的数据目录。
+      - 模型调用走你自己填写的服务商，产生的费用与数据流向由对应服务商决定。
+      - 本包是上游官方发行版镜像的移植，界面与功能保持官方原样。
+      - 首次启动需要初始化工作目录，大约一到两分钟，期间页面显示加载中属正常现象。
   en-US:
     name: QwenPaw
-    description: >-
-      Your personal AI assistant, extended by skills and plugins
-      and connected across every channel.
+    description: |-
+      Works for you, grows with you. QwenPaw is AgentScope's open-source personal AI
+      assistant that runs entirely on your own device: bring any model, split work across
+      several agents, and extend it with skills and plugins.
+
+      More than a chat box:
+
+      - Scheduled tasks — digest the news, generate reports, and push them on your schedule;
+      - A unified file workspace — read, edit, summarize and convert PDF, Word, Excel and
+        PowerPoint files;
+      - Browsing and retrieval — web search, subscriptions, video summaries and your own
+        knowledge base;
+      - Multi-channel delivery — DingTalk, Lark, Telegram, Discord, all at once or per channel;
+      - Custom workflows — chain plugins and schedules into a pipeline of your own.
+
+      Chats, memory, skills and settings stay in a local directory on your device.
     usage: |
-      Opening the app lands on the QwenPaw chat screen.
+      Opening the app lands on the QwenPaw console.
 
       First run:
 
-      1. Add a model under Settings -> Models. Any OpenAI-compatible
-         endpoint works: DashScope/Qwen, OpenAI, Gemini, DeepSeek, or a
-         local Ollama / LM Studio server.
-      2. Pick an agent in the sidebar and start chatting; several
-         agents can split a long task between them.
-      3. Turn on the skills and plugins you need: web search, document
-         access, reminders, and channel links (DingTalk, Feishu, WeChat,
-         Discord, Telegram and more).
+      1. Add a model under Settings -> Models. Any OpenAI-compatible endpoint works:
+         DashScope/Qwen, OpenAI, Gemini, DeepSeek, or a local Ollama / LM Studio / vLLM
+         server. Test the connection before saving.
+      2. Create an agent in the sidebar, pick a model and a role (writing, coding, data
+         analysis presets are built in, and you can write your own system prompt), then
+         just describe the task in the chat box.
+      3. Turn on the skills you need under Skills / Plugins: web search, file access,
+         document conversion, reminders, browser control. Enable them as needed.
+      4. To let it work on its own, add a scheduled task — for example "every day at 8:00,
+         summarize tech news and send it to Lark" — and the result is delivered to you.
+      5. Bind a DingTalk, Lark, Telegram or Discord bot under Channels to talk to it from
+         your chat apps.
 
       Data:
 
-      Chats, memory, skills and settings live on your own device and
-      survive restarts and upgrades. Uninstalling keeps the data;
-      reinstalling picks it up again, and deleting the app data
-      directory wipes it for good.
+      Chats, memory, skills and model settings live in a local directory on your device
+      and survive restarts and upgrades. Uninstalling keeps the data; reinstalling picks
+      it up again, and deleting the app data directory wipes it for good.
 
       Notes:
 
-      - This is a container port of the upstream release; the UI is the
-        vendor's own.
+      - This is a container port of the upstream release; the UI is the vendor's own.
       - Model requests go to the provider you configure.
-      - The first start pulls the image and sets up the working
-        directory, so give it a minute or two.
+      - The first start sets up the working directory, so give it a minute or two.

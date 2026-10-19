@@ -52,18 +52,8 @@ fs.writeFileSync(STATE_FILE, `${JSON.stringify(nextState, null, 2)}\n`);
 
 // 4. 更新日志：Release 正文与商店审核都读这两份
 const date = new Date().toISOString().slice(0, 10);
-const zhLines = [
-	`跟随上游 QwenPaw ${UPSTREAM_VERSION}。`,
-	'',
-	`- 镜像：${IMAGE}`,
-	'- 数据目录沿用原来三处挂载，升级不丢会话与技能配置。',
-];
-const enLines = [
-	`Synced to upstream QwenPaw ${UPSTREAM_VERSION}.`,
-	'',
-	`- Image: ${IMAGE}`,
-	'- Data mounts are unchanged, so conversations and skills survive the upgrade.',
-];
+const zhLines = [`升级至 QwenPaw ${UPSTREAM_VERSION}`];
+const enLines = [`Upgraded to QwenPaw ${UPSTREAM_VERSION}`];
 
 fs.mkdirSync('.github', { recursive: true });
 fs.writeFileSync('.github/changelog.zh.md', `${zhLines.join('\n')}\n`);

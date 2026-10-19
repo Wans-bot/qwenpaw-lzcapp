@@ -84,6 +84,63 @@ gh workflow run publish.yml -f lpk_version=2.2.2
 
 如果商店打回要求改包内容，那才需要 `force=true` 出 `2.2.2-2`。
 
+## 商店文案与截图
+
+商店里的应用名 / 简介 / 详细描述 / 关键词 / 截图**都不在 lpk 里**（lpk 只带 `icon.png`），
+它们在开发者中心（`appstore.api.lazycat.cloud/api/v3/developer/...`）按语言存在
+`resource.info_data.{zh,en}` 上，要跟着一次审核提交才会生效。
+
+判定文案该改哪儿：
+
+- `package.yml` 的 `name` / `description` / `locales.*` → lpk 清单，装上看「应用信息」用；
+- `package.yml` 的 `locales.zh-CN.usage` → 应用详情页的「使用说明」；
+- 商店列表里看到的简介和详情 → 开发者中心，改 `package.yml` 不会同步过去。
+
+提交一次「版本 + 信息」审核（不用开发者中心网页）：
+
+```bash
+# 1. 出包（改了 package.yml / changelog 之后）
+lzc-cli project release .
+
+# 2. 上传 lpk 拿 pkg_path / pkg_hash / icon_path / lpk_size / image_size
+curl -s -H "X-User-Token: $LAZYCAT_TOKEN" \
+  -F file=@dist/cloud.lazycat.app.qwenpaw-v2.2.2.lpk \
+  https://appstore.api.lazycat.cloud/api/v3/developer/app/lpk/upload
+
+# 3. 截图上传，返回 {"url":"/public/<uuid>.png"}
+curl -s -H "X-User-Token: $LAZYCAT_TOKEN" -F file=@shot.png \
+  https://appstore.api.lazycat.cloud/api/v3/developer/upload
+
+# 4. 提交审核：infos + version 一起（见 /tmp/submit_review.py 的思路）
+curl -s -H "X-User-Token: $LAZYCAT_TOKEN" -H 'Content-Type: application/json' \
+  -d @review_body.json \
+  https://appstore.api.lazycat.cloud/api/v3/developer/app/5365/review/create
+```
+
+三个坑：
+
+- 改已有语言的信息时 **`infos[].id` 必须写 0**，写真实 id 会被拒：
+  `应用信息 id:xxx 已存在，修改应用信息时请将 id 置为 0 后提交`。
+- 提交体和开发者中心一致：`{submit_channel: 3, infos: [...], version: {...}}`；
+  只改信息不换包时 `version` 可省略，只换包时 `infos` 可省略。
+- 规格：桌面截图 **16:9、边长 1080–7680、≤15MB、PNG/JPEG、最多 8 张**（`support_pc` 时至少 2 张）；
+  移动截图至少 3 张（`support_mobile` 时）。`support_pc` 和 `support_mobile` 不能都为 false。
+
+截图怎么来：不用装到微服上，直接在任意机器起一次临时容器，无头 chromium 截图即可
+（`apply-release.mjs` 里的镜像地址就是当前版本）：
+
+```bash
+docker run -d --name qp-shot --init -p 127.0.0.1:18088:8088 \
+  -v /tmp/qp/working:/app/working -v /tmp/qp/secret:/app/working.secret \
+  -v /tmp/qp/backups:/app/working.backups <registry-image>
+# 然后 CDP 驱动浏览器：先 localStorage.setItem('language','zh'|'en') 再 reload 切语言，
+# 桌面 1600x900 @2x = 3200x1800，移动 414x896 @3x = 1242x2688，
+# 页面路由：/chat /models /skills /channels /cron-jobs /market /agents
+docker rm -f qp-shot
+```
+
+已用过的四张桌面图：`/chat`、`/models`、`/skills`、`/channels`；移动端同前三张。
+
 ## 版本号规则
 
 - 首次跟随某上游版本：`2.2.2`
