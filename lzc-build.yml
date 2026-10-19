@@ -1,0 +1,6 @@
+# QwenPaw 打包配置
+# 镜像已在 registry.lazycat.cloud 上（CI 用 copy-image 中转），
+# 因此这里不需要 images/embed 段，LPK 里只有清单与图标。
+manifest: ./lzc-manifest.yml
+pkgout: ./dist
+icon: ./icon.png

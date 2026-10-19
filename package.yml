@@ -1,0 +1,74 @@
+package: cloud.lazycat.app.qwenpaw
+version: 2.2.2
+name: QwenPaw
+description: 懂你所需，伴你左右。你的个人 AI 助理 — 通过 Skills 与插件扩展能力，全频道连接。
+author: AgentScope AI (Alibaba)
+license: Apache-2.0
+homepage: https://github.com/agentscope-ai/QwenPaw
+support_mobile: true
+permissions:
+  required:
+    - net.internet
+  optional:
+    - document.private
+format: v2
+is_app: true
+locales:
+  zh-CN:
+    name: QwenPaw
+    description: 懂你所需，伴你左右。你的个人 AI 助理，通过 Skills 与插件扩展能力，全频道连接。
+    usage: |
+      打开应用就是 QwenPaw 的对话界面，第一次使用按下面三步走：
+
+      1. 配置模型：进入「设置 → 模型」，填入任意一家兼容 OpenAI 协议的 API Key
+         （通义千问 DashScope、OpenAI、Gemini、DeepSeek 都能用；也可以指向本机
+         Ollama / LM Studio 的地址）。
+      2. 选一个 Agent 开始聊天：左侧列表里可以直接对话，支持多 Agent 协作与
+         长任务拆解。
+      3. 需要更强的能力就到「技能 / 插件」里开启：联网搜索、文档读写、日程提醒、
+         渠道接入（钉钉、飞书、微信、Discord、Telegram 等）都在这里配置。
+
+      数据持久化：
+
+      会话、记忆、技能与配置都存在设备本地存储里，重启和升级都不会丢。卸载应用
+      不会删除数据，重新安装后会继续沿用原有数据；要彻底清除请在设备上手动删除
+      该应用的数据目录。
+
+      说明：
+
+      - 本包是上游官方发行版容器镜像的移植，界面与功能均为官方原样。
+      - 模型调用走你填写的第三方 API，产生的费用与数据流向由对应服务商决定。
+      - 首次启动需要拉取镜像并初始化工作目录，大约需要一到两分钟。
+  en-US:
+    name: QwenPaw
+    description: >-
+      Your personal AI assistant, extended by skills and plugins
+      and connected across every channel.
+    usage: |
+      Opening the app lands on the QwenPaw chat screen.
+
+      First run:
+
+      1. Add a model under Settings -> Models. Any OpenAI-compatible
+         endpoint works: DashScope/Qwen, OpenAI, Gemini, DeepSeek, or a
+         local Ollama / LM Studio server.
+      2. Pick an agent in the sidebar and start chatting; several
+         agents can split a long task between them.
+      3. Turn on the skills and plugins you need: web search, document
+         access, reminders, and channel links (DingTalk, Feishu, WeChat,
+         Discord, Telegram and more).
+
+      Data:
+
+      Chats, memory, skills and settings live on your own device and
+      survive restarts and upgrades. Uninstalling keeps the data;
+      reinstalling picks it up again, and deleting the app data
+      directory wipes it for good.
+
+      Notes:
+
+      - This is a container port of the upstream release; the UI is the
+        vendor's own.
+      - Model requests go to the provider you configure.
+      - The first start pulls the image and sets up the working
+        directory, so give it a minute or two.

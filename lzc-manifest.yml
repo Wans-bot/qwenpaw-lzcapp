@@ -1,0 +1,29 @@
+# QwenPaw 懒猫移植清单
+#
+# 数据挂载沿用的是最初 2.2.1 版本的路径（与上游 docker-compose 的 volume 名一一对应），
+# 升级时必须保持不变，否则老用户的会话 / 记忆 / 技能目录会“看起来丢了”。
+#
+# 镜像由 CI 自动搬运：GitHub Actions 先 lzc-cli appstore copy-image 把上游
+# agentscope/qwenpaw:<版本> 转到 registry.lazycat.cloud，再把下面的 image
+# 行改写成中转后的地址（tag 由中转结果给出），最后出包提审。
+application:
+  subdomain: qwenpaw
+  routes:
+    - /=http://qwenpaw.cloud.lazycat.app.qwenpaw.lzcapp:8088
+  # 上游是 FastAPI + 前端静态资源，8088 起来后首屏还要初始化工作目录，
+  # 因此这里只做应用自带的健康探测，给足启动时间，避免安装时误判失败。
+  health_check:
+    test_url: http://qwenpaw.cloud.lazycat.app.qwenpaw.lzcapp:8088/
+    start_period: 180s
+    timeout: 10s
+    disable: false
+
+services:
+  qwenpaw:
+    # 上游 --init 用于正确回收子进程，懒猫侧同样需要，否则重启时会留僵尸进程
+    init: true
+    image: registry.lazycat.cloud/wans/agentscope/qwenpaw:df0f729634314996
+    binds:
+      - /lzcapp/var/working:/app/working
+      - /lzcapp/var/working.secret:/app/working.secret
+      - /lzcapp/var/working.backups:/app/working.backups
