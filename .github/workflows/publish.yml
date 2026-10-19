@@ -43,7 +43,8 @@ jobs:
           set -euo pipefail
           mkdir -p dist
           gh release download "v${LPK_VERSION}" --pattern '*.lpk' --pattern 'SHA256SUMS.txt' --dir dist
-          cd dist && sha256sum -c SHA256SUMS.txt
+          # SHA256SUMS.txt 里记的是 dist/xxx.lpk，所以要在仓库根目录校验
+          sha256sum -c dist/SHA256SUMS.txt
 
       - name: 安装 lzc-cli 并写入凭据
         env:
